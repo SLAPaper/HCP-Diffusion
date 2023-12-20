@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 import itertools
 from transformers import CLIPTextModel
@@ -62,6 +63,9 @@ class SDXLTEUnetWrapper(TEUnetWrapper):
             for feeder in self.TE.input_feeder:
                 feeder(input_all)
         encoder_hidden_states, pooled_output = self.TE(prompt_ids, position_ids=position_ids, attention_mask=attn_mask, output_hidden_states=True)  # Get the text embedding for conditioning
+
+        if kwargs.get('do_cfg', False):  # for classifier free guidance
+            crop_info = torch.cat([crop_info, crop_info], dim=0)
 
         added_cond_kwargs = {"text_embeds":pooled_output[-1], "time_ids":crop_info}
         if attn_mask is not None:

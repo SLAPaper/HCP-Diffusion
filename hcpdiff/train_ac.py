@@ -85,6 +85,10 @@ class Trainer:
         else:  # DreamArtist
             self.cfg_context = DreamArtistPTContext(self.cfg_scale, self.num_train_timesteps)
 
+        self.do_classifier_free_guidance = False
+        if any((self.cfg_scale[0] > 1.0, self.cfg_scale[1] > 1.0)):
+            self.do_classifier_free_guidance = True
+
         with torch.no_grad():
             self.build_ema()
 
@@ -477,7 +481,7 @@ class Trainer:
                     other_datas['plugin_input'] = {k:v.to(self.device, dtype=self.weight_dtype) for k, v in data['plugin_input'].items()}
 
                 latents = self.get_latents(image, self.train_loader_group.get_dataset(idx))
-                model_pred, target, timesteps = self.forward(latents, prompt_ids, attn_mask, position_ids, **other_datas)
+                model_pred, target, timesteps = self.forward(latents, prompt_ids, attn_mask, position_ids, do_cfg=self.do_classifier_free_guidance, **other_datas)
                 loss = self.get_loss(model_pred, target, timesteps, img_mask)*self.train_loader_group.get_loss_weights(idx)
                 self.accelerator.backward(loss)
 
