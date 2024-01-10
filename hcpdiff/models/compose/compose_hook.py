@@ -100,8 +100,8 @@ class ComposeTEEXHook:
 
     def encode_prompt_to_emb(self, prompt):
         emb_list = [tehook.encode_prompt_to_emb(prompt) for name, tehook in self.tehook_list]
-        encoder_hidden_states, pooled_output = list(zip(*emb_list))
-        return torch.cat(encoder_hidden_states, dim=self.cat_dim), pooled_output
+        encoder_hidden_states, pooled_output, attention_mask = list(zip(*emb_list))
+        return torch.cat(encoder_hidden_states, dim=self.cat_dim), pooled_output, attention_mask
 
     def enable_xformers(self):
         for name, tehook in self.tehook_list:

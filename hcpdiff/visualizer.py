@@ -199,8 +199,8 @@ class Visualizer:
                     feeder(ex_input_dict)
 
             emb, pooled_output, attention_mask = self.te_hook.encode_prompt_to_emb(clean_text_n+clean_text_p)
-            if self.cfgs.encoder_attention_mask:
-                emb, attention_mask = pad_attn_bias(emb, attention_mask)
+            if self.cfgs.encoder_attention_mask and attention_mask is not None:
+                emb, attention_mask = pad_attn_bias(emb, attention_mask[-1])
             else:
                 attention_mask = None
             emb_n, emb_p = emb.chunk(2)
